@@ -6,6 +6,7 @@ AM_CXXFLAGS = -fpic \
 
 bin_PROGRAMS = ebustrace
 
-ebustrace_SOURCES = ebustrace.cpp
+ebustrace_SOURCES = ebustrace.cpp \
+		    logger.cpp logger.h
 
 ebustrace_LDADD = $(LIBEBUSFSM_LIBS)

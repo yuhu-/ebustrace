@@ -19,41 +19,31 @@
 
 #include "logger.h"
 
-#include <ebusfsm/EbusFSM.h>
-#include <ebusfsm/EbusSequence.h>
-
 #include <iostream>
-#include <functional>
 
-#include <unistd.h>
-
-ebusfsm::Reaction identify(ebusfsm::EbusSequence& eSeq)
+void logger::error(const std::string& message)
 {
-	std::cout << "identify: " << eSeq.toString().c_str() << std::endl;
-
-	return (ebusfsm::Reaction::undefined);
+	std::cout << "ERROR:    " << message << std::endl;
 }
 
-void publish(ebusfsm::EbusSequence& eSeq)
+void logger::warn(const std::string& message)
 {
-	std::cout << "publish:  " << eSeq.toString().c_str() << std::endl;
+	//std::cout << "WARN:     " << message << std::endl;
 }
 
-int main()
+void logger::info(const std::string& message)
 {
-	ebusfsm::EbusFSM fsm(0xff, "/dev/ttyUSB0", false, std::make_shared<logger>(), std::bind(&identify, std::placeholders::_1),
-		std::bind(&publish, std::placeholders::_1));
-
-	int count = 0;
-
-	while (count < 100)
-	{
-		sleep(1);
-		//std::cout << "main loop - count: " << count << std::endl;
-
-		count++;
-	}
-
-	return (0);
-
+	std::cout << "INFO:     " << message << std::endl;
 }
+
+void logger::debug(const std::string& message)
+{
+	//std::cout << "DEBUG:    " << message << std::endl;
+}
+
+void logger::trace(const std::string& message)
+{
+	//std::cout << "TRACE: " << message << std::endl;
+}
+
+
