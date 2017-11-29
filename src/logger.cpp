@@ -17,7 +17,7 @@
  * along with ebustrace. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "logger.h"
+#include <logger.h>
 
 #include <iostream>
 

@@ -17,7 +17,7 @@
  * along with ebustrace. If not, see http://www.gnu.org/licenses/.
  */
 
-#include "logger.h"
+#include <logger.h>
 
 #include <ebusfsm/EbusFSM.h>
 #include <ebusfsm/EbusSequence.h>
@@ -29,7 +29,7 @@
 
 ebusfsm::Reaction identify(ebusfsm::EbusSequence& eSeq)
 {
-	std::cout << "identify: " << eSeq.toString().c_str() << std::endl;
+	//std::cout << "identify: " << eSeq.toString().c_str() << std::endl;
 
 	return (ebusfsm::Reaction::undefined);
 }

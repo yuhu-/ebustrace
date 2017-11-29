@@ -20,7 +20,7 @@
 #ifndef EBUSTRACE_LOGGER_H
 #define EBUSTRACE_LOGGER_H
 
-#include "ebusfsm/IEbusLogger.h"
+#include <ebusfsm/IEbusLogger.h>
 
 class logger : public ebusfsm::IEbusLogger
 {
