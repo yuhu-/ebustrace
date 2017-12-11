@@ -28,12 +28,12 @@ void logger::error(const std::string& message)
 
 void logger::warn(const std::string& message)
 {
-	//std::cout << "WARN:     " << message << std::endl;
+	std::cout << "WARN:     " << message << std::endl;
 }
 
 void logger::info(const std::string& message)
 {
-	std::cout << "INFO:     " << message << std::endl;
+	//std::cout << "INFO:     " << message << std::endl;
 }
 
 void logger::debug(const std::string& message)
