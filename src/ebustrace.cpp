@@ -43,6 +43,16 @@ void publish(ebusfsm::EbusSequence& eSeq)
 	//std::cout << "publish:  " << eSeq.toString().c_str() << std::endl;
 }
 
+struct command
+{
+	const char* hex;
+	const char* name;
+	const char* unit;
+	int type;
+	int pos;
+	int len;
+};
+
 int main()
 {
 	ebusfsm::EbusFSM fsm(0xff, "/dev/ttyUSB0", false, std::make_shared<logger>(), std::bind(&identify, std::placeholders::_1),
@@ -51,37 +61,33 @@ int main()
 	fsm.setReceiveTimeout(15000);
 
 	ebusfsm::EbusSequence eSeq;
-	std::string arr[8][3] =
+
+	std::vector<command> commands =
 	{
-	{ "0ab509030d0000", "NTC1 - Sensor           ", "°C" },
-	{ "0ab509030d0100", "NTC2 - Sensor           ", "°C" },
-	{ "0ab509030d0200", "NTC3 - Sensor           ", "°C" },
-	{ "0ab509030d0900", "Heizanforderung         ", "°C" },
-	{ "0ab509030d0b00", "Zapfsollwert manuell    ", "°C" },
-	{ "0ab509030d0c00", "Zapfsollwert automatisch", "°C" },
-	{ "0ab509030d0e00", "Zapfsollwert aktuell    ", "°C" },
-	{ "0ab509030d4600", "Volumenstrom            ", "l/min" } };
+	{ "0ab509030d0000", "t1", "°C", 22, 1, 2 },
+	{ "0ab509030d0100", "t2", "°C", 22, 1, 2 },
+	{ "0ab509030d0200", "t3", "°C", 22, 1, 2 },
+	{ "0ab509030d0300", "Vdot1", "Hz", 23, 1, 2 },
+	{ "0ab509030d0500", "PumpED  ", "%", 13, 1, 2 },
+	{ "0ab509030d0600", "MixerPos", "-", 23, 1, 2} };
 
 	while (true)
 	{
-		sleep(5);
-
-		size_t i = 0;
-		while (!arr[i][0].empty())
+		for (const command cmd : commands)
 		{
 
-			eSeq.createMaster(0xff, arr[i][0]);
+
+			eSeq.createMaster(0xff, cmd.hex);
 			int state = fsm.transmit(eSeq);
 
 			if (state == SEQ_OK)
-				std::cout << arr[i][1] << " " << ebusfsm::decode(4, eSeq.getSlave().range(1, 2)) << " " << arr[i][2]
+				std::cout << cmd.name << " " << ebusfsm::decode(cmd.type, eSeq.getSlave().range(cmd.pos, cmd.len)) << " " << cmd.unit
 					<< std::endl;
 			else
 				std::cout << fsm.errorText(state) << std::endl;
 
 			eSeq.clear();
-
-			++i;
+			sleep(2);
 		}
 
 	}
