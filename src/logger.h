@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Roland Jax 2017 <roland.jax@liwest.at>
+ * Copyright (C) Roland Jax 2017-2019 <roland.jax@liwest.at>
  *
  * This file is part of ebustrace.
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Roland Jax 2017 <roland.jax@liwest.at>
+ * Copyright (C) Roland Jax 2017-2019 <roland.jax@liwest.at>
  *
  * This file is part of ebustrace.
  *
@@ -30,6 +30,9 @@
 #include <iomanip>
 
 #include <unistd.h>
+#include <sys/time.h>
+
+auto old = std::chrono::system_clock::now();
 
 ebusfsm::Reaction identify(ebusfsm::EbusSequence& eSeq)
 {
@@ -40,7 +43,20 @@ ebusfsm::Reaction identify(ebusfsm::EbusSequence& eSeq)
 
 void publish(ebusfsm::EbusSequence& eSeq)
 {
-	//std::cout << "publish:  " << eSeq.toString().c_str() << std::endl;
+	auto now = std::chrono::system_clock::now();
+//	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+//	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+
+	auto ms_diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - old);
+	old = now;
+
+//	std::ostringstream ostr;
+//	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
+
+
+
+	std::cout << std::setw(4) << ms_diff.count() << " ms : " << eSeq.toString().c_str()
+		<< std::endl;
 }
 
 struct command
@@ -48,7 +64,7 @@ struct command
 	const char* hex;
 	const char* name;
 	const char* unit;
-	int type;
+	ebusfsm::Type type;
 	int pos;
 	int len;
 };
@@ -64,25 +80,24 @@ int main()
 
 	std::vector<command> commands =
 	{
-	{ "0ab509030d0000", "t1", "°C", 22, 1, 2 },
-	{ "0ab509030d0100", "t2", "°C", 22, 1, 2 },
-	{ "0ab509030d0200", "t3", "°C", 22, 1, 2 },
-	{ "0ab509030d0300", "Vdot1", "Hz", 23, 1, 2 },
-	{ "0ab509030d0500", "PumpED  ", "%", 13, 1, 2 },
-	{ "0ab509030d0600", "MixerPos", "-", 23, 1, 2} };
+	{ "0ab509030d0000", "t1", "°C", ebusfsm::Type::data2c, 1, 2 },
+	{ "0ab509030d0100", "t2", "°C", ebusfsm::Type::data2c, 1, 2 },
+	{ "0ab509030d0200", "t3", "°C", ebusfsm::Type::data2c, 1, 2 },
+	{ "0ab509030d0300", "Vdot1", "Hz", ebusfsm::Type::uint, 1, 2 },
+	{ "0ab509030d0500", "PumpED  ", "%", ebusfsm::Type::uchar, 1, 2 },
+	{ "0ab509030d0600", "MixerPos", "-", ebusfsm::Type::uint, 1, 2 } };
 
 	while (true)
 	{
 		for (const command cmd : commands)
 		{
 
-
 			eSeq.createMaster(0xff, cmd.hex);
 			int state = fsm.transmit(eSeq);
 
 			if (state == SEQ_OK)
-				std::cout << cmd.name << " " << ebusfsm::decode(cmd.type, eSeq.getSlave().range(cmd.pos, cmd.len)) << " " << cmd.unit
-					<< std::endl;
+				std::cout << cmd.name << " " << ebusfsm::decode(cmd.type, eSeq.getSlave().range(cmd.pos, cmd.len))
+					<< " " << cmd.unit << std::endl;
 			else
 				std::cout << fsm.errorText(state) << std::endl;
 
