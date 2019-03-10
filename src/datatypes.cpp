@@ -19,6 +19,7 @@
 
 #include <datatypes.h>
 
+
 // BCD
 uint convert_base(uint value, const uint& oldBase, const uint& newBase)
 {

@@ -25,6 +25,7 @@
 #include <vector>
 #include <cinttypes>
 
+// BCD
 uint convert_base(uint value, const uint& oldBase, const uint& newBase);
 
 uint8_t byte_2_bcd(const std::vector<std::byte>& bytes);
@@ -32,6 +33,7 @@ uint8_t byte_2_bcd(const std::vector<std::byte>& bytes);
 std::vector<std::byte> bcd_2_byte(const uint8_t& value);
 
 
+// templates for byte / integer conversion
 template<typename T>
 struct templateType
 {
@@ -71,46 +73,55 @@ std::vector<std::byte> int2byte(const T& t)
 }
 
 
+// uint8_t
 uint8_t byte_2_uint8(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> uint8_2_byte(const uint8_t& value);
 
 
+// int8_t
 int8_t byte_2_int8(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> int8_2_byte(const int8_t& value);
 
 
+// uint16_t
 uint16_t byte_2_uint16(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> uint16_2_byte(const uint16_t& value);
 
 
+// int16_t
 int16_t byte_2_int16(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> int16_2_byte(const int16_t& value);
 
 
+// DATA1b
 double_t byte_2_data1b(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> data1b_2_byte(const double_t& value);
 
 
+// DATA1c
 double_t byte_2_data1c(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> data1c_2_byte(const double_t& value);
 
 
+// DATA2b
 double_t byte_2_data2b(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> data2b_2_byte(const double_t& value);
 
 
+// DATA2c
 double_t byte_2_data2c(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> data2c_2_byte(const double_t& value);
 
 
+// float
 double_t round_digits(const double_t& value, const uint8_t& digits);
 
 double_t byte_2_float(const std::vector<std::byte>& bytes);
