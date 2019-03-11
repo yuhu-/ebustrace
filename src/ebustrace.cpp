@@ -18,6 +18,7 @@
  */
 
 #include <logger.h>
+#include <datatypes.h>
 
 #include <ebusfsm/EbusFSM.h>
 #include <ebusfsm/EbusSequence.h>
@@ -31,6 +32,11 @@
 
 #include <unistd.h>
 #include <sys/time.h>
+
+enum class datatype
+{
+	bcd, uch, sch, uin, sin, d1b, d1c, d2b, d2c, flt
+};
 
 auto old = std::chrono::system_clock::now();
 
@@ -54,7 +60,7 @@ void publish(ebusfsm::EbusSequence& eSeq)
 	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
 
 	//std::cout << std::setw(4) << ms_diff.count() << " ms : " << eSeq.toString().c_str() << std::endl;
-	std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << eSeq.toString().c_str() << std::endl;
+	//std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << eSeq.toString().c_str() << std::endl;
 }
 
 struct command
@@ -62,6 +68,7 @@ struct command
 	const char* hex;
 	const char* name;
 	const char* unit;
+	const datatype type;
 	int pos;
 	int len;
 };
@@ -69,8 +76,7 @@ struct command
 int main()
 {
 	ebusfsm::EbusFSM fsm(std::byte(0xff), "/dev/ttyUSB0", false, std::make_shared<logger>(),
-		std::bind(&identify, std::placeholders::_1),
-		std::bind(&publish, std::placeholders::_1));
+		std::bind(&identify, std::placeholders::_1), std::bind(&publish, std::placeholders::_1));
 
 	fsm.setReceiveTimeout(15000);
 
@@ -79,62 +85,70 @@ int main()
 	std::vector<command> commands =
 	{
 	/* UIH00 Controller */
-//	{ "15b509030d0100", "UIH00 Aussentemperatur           ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//		{ "15b509030d0500", "UIH00 Solltemperatur             ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Pufferspeicher
-//		{ "15b509030d0200", "UIH00 Vorlauftemperatur Ist      ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK wie T6
+	{ "15b509030d0100", "UIH00 Aussentemperatur           ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "15b509030d0500", "UIH00 Solltemperatur             ", "°C ", datatype::d2c, 1, 2 }, // OK Pufferspeicher
+		{ "15b509030d0200", "UIH00 Vorlauftemperatur Ist      ", "°C ", datatype::d2c, 1, 2 }, // OK wie T6
 		/* EHP00 Wärmepumpe */
-		//	{ "08b509030d0000", "EHP00 Speichertemperatur       ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Pufferspeicher
-//		{ "08b509030d0100", "EHP00 Vorlauftemperatur        ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Pufferspeicher VF1
-		//	{ "08b509030d0700", "EHP00 Rücklauftemperatur       ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Pufferspeicher RF1
-		//	{ "08b509030d0f00", "EHP00 Sole Eintritt            ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Wärmequelle T3
-		//	{ "08b509030d0800", "EHP00 Sole Austritt            ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Wärmequelle T8
-//			{ "08b509030d1600", "EHP00 Druck Solekreis          ", "bar", ebusfsm::Type::data2c, 1, 2 },
-		//	{ "08b509030d0200", "EHP00 Kompressor Eintritt ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Kältekreis T1
-		//	{ "08b509030d0400", "EHP00 Kompressor Austritt ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Kältekreis T2
-		//	{ "08b509030d0d00", "EHP00 TEV Eintritt             ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Kältekreis T4
-		//	{ "08b509030d8d00", "EHP00 Ueberhitzung             ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Kältekreis
-		//	{ "08b509030d8e00", "EHP00 Unterkuehlung            ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Kältekreis
-//			{ "08b509030d1400", "EHP00 Hochdruck Kaeltekreis    ", "bar", ebusfsm::Type::data2c, 1, 2 },
-//			{ "08b509030d1500", "EHP00 Niederdruck Kaeltekreis  ", "bar", ebusfsm::Type::data2c, 1, 2 },
-//		{ "08b509030d0900", "EHP00 Vorlauftemperatur        ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Wärmepumpenkreis T6
-//	{ "08b509030d0a00", "EHP00 Rücklauftemperatur      ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK Wärmepumpenkreis T5
-//		{ "08b509030d1200", "EHP00 Heizanlagedruck          ", "bar", ebusfsm::Type::data2c, 1, 2 },
-//		{ "50b509030d4600", "EHP00 KG Vorlauftemperatur Soll  ", "°C", ebusfsm::Type::data1c, 1, 1 }, // OK KG
-//		{ "08b509030d0300", "EHP00 KG Vorlauftemperatur Ist   ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK KG VF2
+		{ "08b509030d0000", "EHP00 Speichertemperatur         ", "°C ", datatype::d2c, 1, 2 }, // OK Pufferspeicher
+		{ "08b509030d0100", "EHP00 Vorlauftemperatur          ", "°C ", datatype::d2c, 1, 2 }, // OK Pufferspeicher VF1
+		{ "08b509030d0700", "EHP00 Rücklauftemperatur         ", "°C ", datatype::d2c, 1, 2 }, // OK Pufferspeicher RF1
+		{ "08b509030d0f00", "EHP00 Sole Eintritt              ", "°C ", datatype::d2c, 1, 2 }, // OK Solekreis Wärmequelle T3
+		{ "08b509030d0800", "EHP00 Sole Austritt              ", "°C ", datatype::d2c, 1, 2 }, // OK Solekreis Wärmequelle T8
+		{ "08b509030d1600", "EHP00 Druck Solekreis            ", "bar", datatype::flt, 1, 2 }, // OK Solekreis
+		{ "08b509030d0200", "EHP00 Kompressor Eintritt        ", "°C ", datatype::d2c, 1, 2 }, // OK Kältekreis T1
+		{ "08b509030d0400", "EHP00 Kompressor Austritt        ", "°C ", datatype::d2c, 1, 2 }, // OK Kältekreis T2
+		{ "08b509030d0d00", "EHP00 TEV Eintritt               ", "°C ", datatype::d2c, 1, 2 }, // OK Kältekreis T4
+		{ "08b509030d8d00", "EHP00 Ueberhitzung               ", "°C ", datatype::d2c, 1, 2 }, // OK Kältekreis
+		{ "08b509030d8e00", "EHP00 Unterkuehlung              ", "°C ", datatype::d2c, 1, 2 }, // OK Kältekreis
+		{ "08b509030d1400", "EHP00 Hochdruck Kaeltekreis      ", "bar", datatype::flt, 1, 2 }, // OK Kältekreis
+		{ "08b509030d1500", "EHP00 Niederdruck Kaeltekreis    ", "bar", datatype::flt, 1, 2 }, // OK Kältekreis
+		{ "08b509030d0900", "EHP00 Vorlauftemperatur          ", "°C ", datatype::d2c, 1, 2 }, // OK Wärmepumpenkreis T6
+		{ "08b509030d0a00", "EHP00 Rücklauftemperatur         ", "°C ", datatype::d2c, 1, 2 }, // OK Wärmepumpenkreis T5
+		{ "08b509030d1200", "EHP00 Heizanlagedruck            ", "bar", datatype::flt, 1, 2 }, // OK
+		{ "50b509030d4600", "EHP00 KG Vorlauftemperatur Soll  ", "°C ", datatype::d1c, 1, 1 }, // OK KG
+		{ "08b509030d0300", "EHP00 KG Vorlauftemperatur Ist   ", "°C ", datatype::d2c, 1, 2 }, // OK KG VF2
 		/* MC2   Mischermodul */
-//		{ "52b509030d4600", "MC2   OG Vorlauftemperatur Soll  ", "°C", ebusfsm::Type::data1c, 1, 1 }, // OK OG
-//		{ "52b509030d0100", "MC2   OG Vorlauftemperatur Ist   ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK OG
-//		{ "53b509030d4600", "MC2   EG Vorlauftemperatur Soll  ", "°C", ebusfsm::Type::data1c, 1, 1 }, // OK EG
-//		{ "53b509030d0300", "MC2   EG Vorlauftemperatur Ist   ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK EG
+		{ "52b509030d4600", "MC2   OG Vorlauftemperatur Soll  ", "°C ", datatype::d1c, 1, 1 }, // OK OG
+		{ "52b509030d0100", "MC2   OG Vorlauftemperatur Ist   ", "°C ", datatype::d2c, 1, 2 }, // OK OG
+		{ "53b509030d4600", "MC2   EG Vorlauftemperatur Soll  ", "°C ", datatype::d1c, 1, 1 }, // OK EG
+		{ "53b509030d0300", "MC2   EG Vorlauftemperatur Ist   ", "°C ", datatype::d2c, 1, 2 }, // OK EG
 		/* PMW00 Trinkwasserstation */
-//	{ "0ab509030d0000", "PMW00 vom Speicher           ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//	{ "0ab509030d0100", "PMW00 zum Speicher           ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//	{ "0ab509030d0200", "PMW00 Warmwassertemperatur   ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
+		{ "0ab509030d0000", "PMW00 vom Speicher               ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "0ab509030d0100", "PMW00 zum Speicher               ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "0ab509030d0200", "PMW00 Warmwassertemperatur       ", "°C ", datatype::d2c, 1, 2 }, // OK
 		/* PMS00 Solarladestation */
-//	{ "edb509030d0500", "PMS00 vom Kollektor          ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//	{ "edb509030d0600", "PMS00 zum Kollektor          ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//	{ "edb509030d0800", "PMS00 vom Speicher           ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
-//	{ "edb509030d0700", "PMS00 zum Speicher           ", "°C", ebusfsm::Type::data2c, 1, 2 }, // OK
+		{ "edb509030d0500", "PMS00 vom Kollektor              ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "edb509030d0600", "PMS00 zum Kollektor              ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "edb509030d0800", "PMS00 vom Speicher               ", "°C ", datatype::d2c, 1, 2 }, // OK
+		{ "edb509030d0700", "PMS00 zum Speicher               ", "°C ", datatype::d2c, 1, 2 }, // OK
 		};
 
 	while (true)
 	{
-//		for (const command cmd : commands)
-//		{
+		for (const command cmd : commands)
+		{
 
-//			eSeq.createMaster(0xff, cmd.hex);
-//			int state = fsm.transmit(eSeq);
+			eSeq.createMaster(std::byte(0xff), cmd.hex);
+			int state = fsm.transmit(eSeq);
 
-//			if (state == SEQ_OK)
-//				std::cout << cmd.name << " " << std::fixed << std::setprecision(2)
-//					<< ebusfsm::decode(cmd.type, eSeq.getSlave().range(cmd.pos, cmd.len)) << " " << cmd.unit
-//					<< " ==> " << eSeq.toString().c_str() << std::endl;
-//			else
-//				std::cout << fsm.errorText(state) << std::endl;
+			if (state == SEQ_OK)
+			{
+				std::cout << cmd.name << " " << std::setw(5) << std::fixed << std::setprecision(2);
 
-//			eSeq.clear();
-			sleep(2);
-//		}
+				if (cmd.type == datatype::d1c) std::cout << byte_2_data1c(eSeq.getSlave().range(cmd.pos, cmd.len));
+				if (cmd.type == datatype::d2c) std::cout << byte_2_data2c(eSeq.getSlave().range(cmd.pos, cmd.len));
+				if (cmd.type == datatype::flt) std::cout << byte_2_float(eSeq.getSlave().range(cmd.pos, cmd.len));
+
+				std::cout << " " << cmd.unit << " ==> " << eSeq.toString().c_str() << std::endl;
+			}
+			else
+			{
+				std::cout << fsm.errorText(state) << std::endl;
+			}
+
+			eSeq.clear();
+			sleep(5);
+		}
 
 	}
 

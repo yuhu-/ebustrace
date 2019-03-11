@@ -25,13 +25,6 @@
 #include <vector>
 #include <cinttypes>
 
-// BCD
-uint convert_base(uint value, const uint& oldBase, const uint& newBase);
-
-uint8_t byte_2_bcd(const std::vector<std::byte>& bytes);
-
-std::vector<std::byte> bcd_2_byte(const uint8_t& value);
-
 
 // templates for byte / integer conversion
 template<typename T>
@@ -71,6 +64,18 @@ std::vector<std::byte> int2byte(const T& t)
 	int2byte(t, bytes);
 	return (bytes);
 }
+
+
+// helper functions
+uint convert_base(uint value, const uint& oldBase, const uint& newBase);
+
+double_t round_digits(const double_t& value, const uint8_t& digits);
+
+
+// BCD
+uint8_t byte_2_bcd(const std::vector<std::byte>& bytes);
+
+std::vector<std::byte> bcd_2_byte(const uint8_t& value);
 
 
 // uint8_t
@@ -122,10 +127,9 @@ std::vector<std::byte> data2c_2_byte(const double_t& value);
 
 
 // float
-double_t round_digits(const double_t& value, const uint8_t& digits);
-
 double_t byte_2_float(const std::vector<std::byte>& bytes);
 
 std::vector<std::byte> float_2_byte(const double_t& value);
+
 
 #endif // EBUSTRACE_DATATYPES_H

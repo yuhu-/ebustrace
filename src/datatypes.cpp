@@ -19,8 +19,7 @@
 
 #include <datatypes.h>
 
-
-// BCD
+// helper functions
 uint convert_base(uint value, const uint& oldBase, const uint& newBase)
 {
 	uint result = 0;
@@ -32,6 +31,17 @@ uint convert_base(uint value, const uint& oldBase, const uint& newBase)
 	return (result);
 }
 
+double_t round_digits(const double_t& value, const uint8_t& digits)
+{
+	double_t fractpart, intpart;
+	fractpart = modf(value, &intpart);
+
+	double_t decimals = pow(10, digits);
+
+	return (static_cast<double_t>(intpart) + round(fractpart * decimals) / decimals);
+}
+
+// BCD
 uint8_t byte_2_bcd(const std::vector<std::byte>& bytes)
 {
 	uint8_t value = std::to_integer<unsigned>(bytes[0]);
@@ -150,16 +160,6 @@ std::vector<std::byte> data2c_2_byte(const double_t& value)
 
 
 // float
-double_t round_digits(const double_t& value, const uint8_t& digits)
-{
-	double_t fractpart, intpart;
-	fractpart = modf(value, &intpart);
-
-	double_t decimals = pow(10, digits);
-
-	return (static_cast<double_t>(intpart) + round(fractpart * decimals) / decimals);
-}
-
 double_t byte_2_float(const std::vector<std::byte>& bytes)
 {
 	return (round_digits(static_cast<double_t>(byte2int<int16_t>(bytes)) / 1000, 3));

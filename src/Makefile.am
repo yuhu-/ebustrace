@@ -9,6 +9,7 @@ bin_PROGRAMS = ebustrace \
 	       demo_datatypes
 
 ebustrace_SOURCES = logger.cpp \
+		    datatypes.cpp \
 		    ebustrace.cpp
 ebustrace_LDADD = $(LIBEBUSFSM_LIBS)
 
