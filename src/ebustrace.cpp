@@ -121,7 +121,7 @@ std::vector<command>commands = {
 
 auto old = std::chrono::system_clock::now();
 
-ebus::Reaction process(const std::string &message)
+ebus::Reaction process(const std::string &message, std::string &respone)
 {
 	std::cout << "process: " << message << std::endl;
 
@@ -147,7 +147,7 @@ void publish(const std::string &message)
 int main()
 {
 	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0", std::make_shared<logger>(),
-		std::bind(&process, std::placeholders::_1),
+		std::bind(&process, std::placeholders::_1, std::placeholders::_2),
 		std::bind(&publish, std::placeholders::_1));
 
 	service.setReceiveTimeout(15000);
