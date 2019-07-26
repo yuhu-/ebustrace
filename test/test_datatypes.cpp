@@ -17,10 +17,17 @@
  * along with ebustrace. If not, see http://www.gnu.org/licenses/.
  */
 
-#include <datatypes.h>
-
-#include <iostream>
+#include <bits/stdint-intn.h>
+#include <bits/stdint-uintn.h>
+#include <cmath>
+#include <cstddef>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "../src/datatypes.h"
 
 const std::string toString(const std::vector<std::byte>& seq)
 {

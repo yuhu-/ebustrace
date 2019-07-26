@@ -12,7 +12,7 @@ Makefile.in
 *.o
 *.dirstamp
 src/ebustrace
-src/demo_datatypes
+test/test_datatypes
 .cproject
 .project
 .settings

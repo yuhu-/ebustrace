@@ -20,11 +20,12 @@
 #ifndef EBUSTRACE_DATATYPES_H
 #define EBUSTRACE_DATATYPES_H
 
-#include <cstddef>
+#include <bits/stdint-intn.h>
+#include <bits/stdint-uintn.h>
+#include <sys/types.h>
 #include <cmath>
+#include <cstddef>
 #include <vector>
-#include <cinttypes>
-
 
 // templates for byte / integer conversion
 template<typename T>

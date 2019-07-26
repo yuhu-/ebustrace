@@ -17,7 +17,7 @@
  * along with ebustrace. If not, see http://www.gnu.org/licenses/.
  */
 
-#include <datatypes.h>
+#include "datatypes.h"
 
 // helper functions
 uint convert_base(uint value, const uint& oldBase, const uint& newBase)

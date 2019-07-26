@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = test src
 
 distclean-local:
 	-rm -rf autom4te.cache
@@ -7,5 +7,4 @@ distclean-local:
 	-rm -f configure
 	-rm -f Makefile.in
 	-rm -rf build
-	-rm -rf src/.deps
 	-rm -rf m4

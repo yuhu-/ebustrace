@@ -3,16 +3,14 @@ AM_CXXFLAGS = -fpic \
 	      -Wextra \
 	      -Wpedantic \
 	      -std=c++17 \
-	      $(LIBEBUSFSM_CFLAGS)
+	      $(LIBEBUS_CFLAGS)
 
-bin_PROGRAMS = ebustrace \
-	       demo_datatypes
+bin_PROGRAMS = ebustrace
 
-ebustrace_SOURCES = logger.cpp \
-		    datatypes.cpp \
+ebustrace_SOURCES = datatypes.cpp \
 		    ebustrace.cpp
-ebustrace_LDADD = $(LIBEBUSFSM_LIBS)
+ebustrace_LDADD = $(LIBEBUS_LIBS)
 
-demo_datatypes_SOURCES = datatypes.cpp \
-			 demo_datatypes.cpp
-demo_datatypes_LDADD = $(LIBEBUSFSM_LIBS)
+distclean-local:
+	-rm -f Makefile.in
+	-rm -rf .deps
