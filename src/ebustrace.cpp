@@ -22,7 +22,6 @@
 #include <chrono>
 #include <cstddef>
 #include <ctime>
-#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -123,7 +122,7 @@ auto old = std::chrono::system_clock::now();
 
 ebus::Reaction process(const std::string &message, std::string &respone)
 {
-	std::cout << "process: " << message << std::endl;
+	std::cout << "process : " << message << std::endl;
 
 	return (ebus::Reaction::undefined);
 }
@@ -140,15 +139,13 @@ void publish(const std::string &message)
 	std::ostringstream ostr;
 	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
 
-	//std::cout << std::setw(4) << ms_diff.count() << " ms : " << message << std::endl;
+	std::cout << std::setw(4) << ms_diff.count() << " ms : " << message << std::endl;
 	//std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << message << std::endl;
 }
 
 int main()
 {
-	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0", std::make_shared<logger>(),
-		std::bind(&process, std::placeholders::_1, std::placeholders::_2),
-		std::bind(&publish, std::placeholders::_1));
+	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0", std::make_shared<logger>(), &process, &publish);
 
 	service.setReceiveTimeout(15000);
 	sleep(1);
@@ -185,5 +182,4 @@ int main()
 	}
 
 	return (0);
-
 }
