@@ -122,7 +122,7 @@ auto old = std::chrono::system_clock::now();
 
 ebus::Reaction process(const std::string &message, std::string &respone)
 {
-	std::cout << "process : " << message << std::endl;
+	//std::cout << "process : " << message << std::endl;
 
 	return (ebus::Reaction::undefined);
 }
@@ -156,7 +156,7 @@ int main()
 		{
 			std::vector<std::byte> response;
 
-			int state = service.transmit(cmd.hex, response);
+			int state = service.transmit(ebus::Ebus::toVector(cmd.hex), response);
 
 			if (state == 0)
 			{
@@ -177,6 +177,8 @@ int main()
 			}
 
 			sleep(5);
+
+			std::cout << "avgSpeed: " << service.avgBusSpeed() << " bps" << std::endl;
 		}
 
 	}
