@@ -145,8 +145,11 @@ void publish(const std::string &message)
 
 int main()
 {
-	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0", std::make_shared<logger>(), &process, &publish);
+	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0");
 
+	service.register_logger(std::make_shared<logger>());
+	service.register_process(&process);
+	service.register_publish(&publish);
 	service.setReceiveTimeout(15000);
 	sleep(1);
 
