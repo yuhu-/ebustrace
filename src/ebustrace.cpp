@@ -120,14 +120,14 @@ std::vector<command>commands = {
 
 auto old = std::chrono::system_clock::now();
 
-ebus::Reaction process(const std::string &message, std::string &respone)
+ebus::Reaction process(const std::string &message, std::string &response)
 {
 	//std::cout << "process : " << message << std::endl;
 
 	return (ebus::Reaction::undefined);
 }
 
-void publish(const std::string &message)
+void publish(const std::string &message, const std::string &response)
 {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -139,8 +139,8 @@ void publish(const std::string &message)
 	std::ostringstream ostr;
 	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
 
-	std::cout << std::setw(4) << ms_diff.count() << " ms : " << message << std::endl;
-	//std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << message << std::endl;
+	std::cout << std::setw(4) << ms_diff.count() << " ms : " << message << " " << response << std::endl;
+	//std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << message << " " << response << std::endl;
 }
 
 int main()
