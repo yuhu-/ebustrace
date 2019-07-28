@@ -120,14 +120,14 @@ std::vector<command>commands = {
 
 auto old = std::chrono::system_clock::now();
 
-ebus::Reaction process(const std::string &message, std::string &response)
+ebus::Reaction process(const std::vector<std::byte> &message, std::vector<std::byte> &response)
 {
-	//std::cout << "process : " << message << std::endl;
+	//std::cout << "process : " << ebus::Ebus::toString(message) << std::endl;
 
 	return (ebus::Reaction::undefined);
 }
 
-void publish(const std::string &message, const std::string &response)
+void publish(const std::vector<std::byte> &message, const std::vector<std::byte> &response)
 {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -139,8 +139,10 @@ void publish(const std::string &message, const std::string &response)
 	std::ostringstream ostr;
 	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
 
-	std::cout << std::setw(4) << ms_diff.count() << " ms : " << message << " " << response << std::endl;
-	//std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << message << " " << response << std::endl;
+	std::cout << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
+		<< ebus::Ebus::toString(response) << std::endl;
+//	std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
+//		<< ebus::Ebus::toString(response) << std::endl;
 }
 
 int main()
@@ -181,7 +183,7 @@ int main()
 
 			sleep(5);
 
-			std::cout << "avgSpeed: " << service.avgBusSpeed() << " bps" << std::endl;
+			//std::cout << "avgSpeed: " << service.avgBusSpeed() << " bps" << std::endl;
 		}
 
 	}
