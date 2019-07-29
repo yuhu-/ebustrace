@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include "Average.h"
 #include "datatypes.h"
 
 class logger : public ebus::ILogger
@@ -117,6 +118,13 @@ std::vector<command>commands = {
 { "edb509030d0700", "PMS00 zum Speicher               ", "°C ", datatype::d2c, 1, 2 }, // OK
 };
 // @formatter:on
+struct participant
+{
+	std::vector<std::byte> qq;
+	std::vector<std::byte> zz;
+};
+
+std::vector<participant> participants;
 
 auto old = std::chrono::system_clock::now();
 
@@ -125,6 +133,17 @@ ebus::Reaction process(const std::vector<std::byte> &message, std::vector<std::b
 	//std::cout << "process : " << ebus::Ebus::toString(message) << std::endl;
 
 	return (ebus::Reaction::undefined);
+}
+
+void collect(const std::vector<std::byte> &message)
+{
+	std::cout << "collect: " << ebus::Ebus::toString(message) << std::endl;
+
+	std::vector<std::byte> qq = ebus::Ebus::range(message, 0, 1);
+	std::vector<std::byte> zz = ebus::Ebus::range(message, 1, 1);
+
+	std::cout << "     qq: " << ebus::Ebus::toString(qq) << std::endl;
+	std::cout << "     zz: " << ebus::Ebus::toString(zz) << std::endl;
 }
 
 void publish(const std::vector<std::byte> &message, const std::vector<std::byte> &response)
@@ -143,6 +162,38 @@ void publish(const std::vector<std::byte> &message, const std::vector<std::byte>
 		<< ebus::Ebus::toString(response) << std::endl;
 //	std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
 //		<< ebus::Ebus::toString(response) << std::endl;
+
+	collect(message);
+}
+
+// bus speed
+long m_lastSeconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+long m_bytes = 0;
+long m_bytesPerSeconds = 0;
+Average m_bytesPerSecondsAVG(15);
+
+void calcSpeed()
+{
+	long actSeconds =
+		std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+	if (actSeconds > m_lastSeconds)
+	{
+		m_bytesPerSeconds = m_bytes;
+		m_bytesPerSecondsAVG.addValue(m_bytes);
+		m_lastSeconds = actSeconds;
+		m_bytes = 1;
+	}
+
+	m_bytes++;
+}
+
+// rawdata
+void rawdata(const std::byte &byte)
+{
+	calcSpeed();
+
+	//std::cout << " rawdata: " << ebus::Ebus::toString(std::vector<std::byte>(1, byte)) << std::endl;
 }
 
 int main()
@@ -152,11 +203,13 @@ int main()
 	service.register_logger(std::make_shared<logger>());
 	service.register_process(&process);
 	service.register_publish(&publish);
+	service.register_rawdata(&rawdata);
 	service.setReceiveTimeout(15000);
 	sleep(1);
 
 	while (true)
 	{
+
 		for (const command cmd : commands)
 		{
 			std::vector<std::byte> response;
@@ -183,7 +236,8 @@ int main()
 
 			sleep(5);
 
-			//std::cout << "avgSpeed: " << service.avgBusSpeed() << " bps" << std::endl;
+			std::cout << "   Speed: " << m_bytesPerSeconds << " bps" << std::endl;
+			std::cout << "avgSpeed: " << m_bytesPerSecondsAVG.getAverage() << " bps" << std::endl;
 		}
 
 	}
