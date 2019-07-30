@@ -130,20 +130,9 @@ auto old = std::chrono::system_clock::now();
 
 ebus::Reaction process(const std::vector<std::byte> &message, std::vector<std::byte> &response)
 {
-	//std::cout << "process : " << ebus::Ebus::toString(message) << std::endl;
+	std::cout << " process: " << ebus::Ebus::toString(message) << std::endl;
 
 	return (ebus::Reaction::undefined);
-}
-
-void collect(const std::vector<std::byte> &message)
-{
-	std::cout << "collect: " << ebus::Ebus::toString(message) << std::endl;
-
-	std::vector<std::byte> qq = ebus::Ebus::range(message, 0, 1);
-	std::vector<std::byte> zz = ebus::Ebus::range(message, 1, 1);
-
-	std::cout << "     qq: " << ebus::Ebus::toString(qq) << std::endl;
-	std::cout << "     zz: " << ebus::Ebus::toString(zz) << std::endl;
 }
 
 void publish(const std::vector<std::byte> &message, const std::vector<std::byte> &response)
@@ -162,8 +151,17 @@ void publish(const std::vector<std::byte> &message, const std::vector<std::byte>
 		<< ebus::Ebus::toString(response) << std::endl;
 //	std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
 //		<< ebus::Ebus::toString(response) << std::endl;
+}
 
-	collect(message);
+void collect(const std::vector<std::byte> &message, const std::vector<std::byte> &response)
+{
+	std::cout << " collect: " << ebus::Ebus::toString(message) << std::endl;
+
+	std::vector<std::byte> qq = ebus::Ebus::range(message, 0, 1);
+	std::vector<std::byte> zz = ebus::Ebus::range(message, 1, 1);
+
+	std::cout << "      qq: " << ebus::Ebus::toString(qq) << std::endl;
+	std::cout << "      zz:   " << ebus::Ebus::toString(zz) << std::endl;
 }
 
 // bus speed
@@ -172,7 +170,7 @@ long m_bytes = 0;
 long m_bytesPerSeconds = 0;
 Average m_bytesPerSecondsAVG(15);
 
-void calcSpeed()
+void count(const std::byte &byte)
 {
 	long actSeconds =
 		std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -191,9 +189,7 @@ void calcSpeed()
 // rawdata
 void rawdata(const std::byte &byte)
 {
-	calcSpeed();
-
-	//std::cout << " rawdata: " << ebus::Ebus::toString(std::vector<std::byte>(1, byte)) << std::endl;
+	std::cout << " rawdata: " << ebus::Ebus::toString(std::vector<std::byte>(1, byte)) << std::endl;
 }
 
 int main()
@@ -201,10 +197,17 @@ int main()
 	ebus::Ebus service(std::byte(0xff), "/dev/ttyUSB0");
 
 	service.register_logger(std::make_shared<logger>());
+
 	service.register_process(&process);
+
 	service.register_publish(&publish);
+	service.register_publish(&collect);
+
+	service.register_rawdata(&count);
 	service.register_rawdata(&rawdata);
+
 	service.setReceiveTimeout(15000);
+
 	sleep(1);
 
 	while (true)
