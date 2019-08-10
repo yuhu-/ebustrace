@@ -130,7 +130,7 @@ auto old = std::chrono::system_clock::now();
 
 ebus::Reaction process(const std::vector<std::byte> &message, std::vector<std::byte> &response)
 {
-	std::cout << " process: " << ebus::Ebus::toString(message) << std::endl;
+	std::cout << " process: " << ebus::Ebus::to_string(message) << std::endl;
 
 	return (ebus::Reaction::undefined);
 }
@@ -147,21 +147,21 @@ void publish(const std::vector<std::byte> &message, const std::vector<std::byte>
 	std::ostringstream ostr;
 	ostr << std::put_time(localtime(&in_time_t), "%Y-%m-%d %X.") << std::setw(3) << std::setfill('0') << ms.count() % 1000;
 
-	std::cout << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
-		<< ebus::Ebus::toString(response) << std::endl;
+	std::cout << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::to_string(message) << " "
+		<< ebus::Ebus::to_string(response) << std::endl;
 //	std::cout << ostr.str() << " " << std::setw(4) << ms_diff.count() << " ms : " << ebus::Ebus::toString(message) << " "
 //		<< ebus::Ebus::toString(response) << std::endl;
 }
 
 void collect(const std::vector<std::byte> &message, const std::vector<std::byte> &response)
 {
-	std::cout << " collect: " << ebus::Ebus::toString(message) << std::endl;
+	std::cout << " collect: " << ebus::Ebus::to_string(message) << std::endl;
 
 	std::vector<std::byte> qq = ebus::Ebus::range(message, 0, 1);
 	std::vector<std::byte> zz = ebus::Ebus::range(message, 1, 1);
 
-	std::cout << "      qq: " << ebus::Ebus::toString(qq) << std::endl;
-	std::cout << "      zz:   " << ebus::Ebus::toString(zz) << std::endl;
+	std::cout << "      qq: " << ebus::Ebus::to_string(qq) << std::endl;
+	std::cout << "      zz:   " << ebus::Ebus::to_string(zz) << std::endl;
 }
 
 // bus speed
@@ -189,7 +189,7 @@ void count(const std::byte &byte)
 // rawdata
 void rawdata(const std::byte &byte)
 {
-	std::cout << " rawdata: " << ebus::Ebus::toString(std::vector<std::byte>(1, byte)) << std::endl;
+	std::cout << " rawdata: " << ebus::Ebus::to_string(std::vector<std::byte>(1, byte)) << std::endl;
 }
 
 int main()
@@ -204,9 +204,7 @@ int main()
 	service.register_publish(&collect);
 
 	service.register_rawdata(&count);
-	service.register_rawdata(&rawdata);
-
-	service.setReceiveTimeout(15000);
+	//service.register_rawdata(&rawdata);
 
 	sleep(1);
 
@@ -217,7 +215,7 @@ int main()
 		{
 			std::vector<std::byte> response;
 
-			int state = service.transmit(ebus::Ebus::toVector(cmd.hex), response);
+			int state = service.transmit(ebus::Ebus::to_vector(cmd.hex), response);
 
 			if (state == 0)
 			{
@@ -230,11 +228,11 @@ int main()
 				if (cmd.type == datatype::flt)
 					std::cout << byte_2_float(ebus::Ebus::range(response, cmd.pos, cmd.len));
 
-				std::cout << " " << cmd.unit << " ==> " << ebus::Ebus::toString(response) << std::endl;
+				std::cout << " " << cmd.unit << " ==> " << ebus::Ebus::to_string(response) << std::endl;
 			}
 			else
 			{
-				std::cout << service.errorText(state) << std::endl;
+				std::cout << service.error_text(state) << std::endl;
 			}
 
 			sleep(5);
