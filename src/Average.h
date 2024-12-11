@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Roland Jax 2012-2019 <roland.jax@liwest.at>
+ * Copyright (C) Roland Jax 2012-2024 <roland.jax@liwest.at>
  *
  * This file is part of ebus.
  *
@@ -17,53 +17,39 @@
  * along with ebus. If not, see http://www.gnu.org/licenses/.
  */
 
-#ifndef EBUSTRACE_AVERAGE_H
-#define EBUSTRACE_AVERAGE_H
+#ifndef SRC_AVERAGE_H_
+#define SRC_AVERAGE_H_
 
 #include <stddef.h>
+
 #include <queue>
 
-class Average
-{
+class Average {
+ public:
+  explicit Average(const size_t size) : m_size(size), m_values() {}
 
-public:
-	explicit Average(const size_t size) : m_size(size), m_values()
-	{
-	}
+  ~Average() { std::queue<double>().swap(m_values); }
 
-	~Average()
-	{
-		std::queue<double>().swap(m_values);
-	}
+  void addValue(const double value) {
+    if (m_values.size() >= m_size) {
+      double oldestValue = m_values.front();
+      m_values.pop();
 
-	void addValue(const double value)
-	{
-		if (m_values.size() >= m_size)
-		{
-			double oldestValue = m_values.front();
-			m_values.pop();
+      m_values.push(value);
+      m_average += (value - oldestValue) / m_size;
+    } else {
+      double average = m_values.size() * m_average;
+      m_values.push(value);
+      m_average = (average + value) / m_values.size();
+    }
+  }
 
-			m_values.push(value);
-			m_average += (value - oldestValue) / m_size;
-		}
-		else
-		{
-			double average = m_values.size() * m_average;
-			m_values.push(value);
-			m_average = (average + value) / m_values.size();
-		}
-	}
+  double getAverage() const { return m_average; }
 
-	double getAverage() const
-	{
-		return (m_average);
-	}
-
-private:
-	const size_t m_size;
-	double m_average = 0;
-	std::queue<double> m_values;
-
+ private:
+  const size_t m_size;
+  double m_average = 0;
+  std::queue<double> m_values;
 };
 
-#endif // EBUSTRACE_AVERAGE_H
+#endif  // SRC_AVERAGE_H_

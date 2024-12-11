@@ -2,16 +2,16 @@ AM_CXXFLAGS = -fpic \
 	      -Wall \
 	      -Wextra \
 	      -Wpedantic \
-	      -std=c++17 \
+	      -std=c++20 \
 	      $(LIBEBUS_CFLAGS)
 
 bin_PROGRAMS = ebustrace
 
-ebustrace_SOURCES = datatypes.cpp \
+ebustrace_SOURCES = Datatypes.cpp \
 		    ebustrace.cpp
 ebustrace_LDADD = $(LIBEBUS_LIBS)
 
-EXTRA_DIST = datatypes.h \
+EXTRA_DIST = Datatypes.h \
 	     Average.h
 
 distclean-local:

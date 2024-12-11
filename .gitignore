@@ -18,3 +18,5 @@ test/test_datatypes
 .settings
 .autotools
 *.tar.gz
+.vscode/
+configure~
